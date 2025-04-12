@@ -95,6 +95,9 @@ def old(request):
     current_date = datetime.now()
     return render(request, 'index_new.html', {'current_date': current_date} )
 
+def privacy(request):
+    return render(request, 'privacy.html')
+
 from gpeclub.models import psl
 import time
 import os

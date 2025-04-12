@@ -29,6 +29,7 @@ urlpatterns = ([
     path('vocab/list', views.vocabList, name='vocabList'),
     path('vocab/ai/<str:set_name>/', views.ai, name='ai'),
     path('vocab/mcq/<str:set_name>/', views.mcq, name='mcq'),
+    path('privacy/', views.privacy, name='privacy'),
 
     path('api/get-openai-response/', views.get_openai_response, name='get_openai_response'),
 

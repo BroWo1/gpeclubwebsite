@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+  <head>
+      {% load static %}
+      {% load i18n %}
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Privacy Policy - Extension GPE">
+    <title>{% trans "Privacy Policy" %} - {% trans "name" %}</title>
+    <link rel="shortcut icon" href="{% static 'imgs/logo.ico' %}"></link>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'index.css' %}"></link>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <a href="{% url 'index' %}" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+          <img src="{% static 'imgs/gpe.png' %}" style="width: 40px; height: 40px" alt="GPE Logo">
+          <span style="font-size: 24px; font-weight: 600">{% trans "name" %}</span>
+        </a>
+      </div>
+
+      <div class="sidebar-nav">
+        <a href="{% url 'index' %}">{% trans "Home" %}</a>
+        <a href="{% url 'search' %}">{% trans "Projects" %}</a>
+        <a href="{% url 'vocabList' %}">{% trans "Vocab" %}</a>
+        <a href="{% url 'school' %}">{% trans "School" %}</a>
+        <a href="{% url 'about' %}">{% trans "About" %}</a>
+        <div style="margin-top: auto;">
+          <form action="{% url 'set_language' %}" method="post">
+            {% csrf_token %}
+            <select name="language" onchange="this.form.submit()" class="language-select">
+              {% get_current_language as CURRENT_LANGUAGE %}
+              {% get_available_languages as AVAILABLE_LANGUAGES %}
+              {% for lang_code, lang_name in AVAILABLE_LANGUAGES %}
+                <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
+                  {{ lang_name }}
+                </option>
+              {% endfor %}
+            </select>
+          </form>
+        </div>
+      </div>
+    </div>
+    <button id="sidebarToggle" class="sidebar-toggle">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="header-actions">
+        <form role="search" action="projects/search/" method="get" style="width: 250px;">
+          <input type="search" class="search-input" style="height: 36px; font-size: 14px; color: var(--text-color)" placeholder="{% trans "Search..." %}" aria-label="Search" name="query" value="{{ query }}">
+        </form>
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="moon-icon">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sun-icon">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="central-content" style="text-align: left; padding-top: 20px;">
+        <h1 style="text-align: center; margin-bottom: 40px;">Privacy Policy</h1>
+        <p style="margin-bottom: 10px; color: var(--secondary-text);">Effective Date: April 12, 2025</p>
+
+        <div style="max-width: 800px; margin: 0 auto;">
+          <p style="margin-bottom: 20px;">
+            This Privacy Policy explains how Extension GPE ("we", "our", or "extension") collects, uses, and shares information when you use our browser extension.
+          </p>
+
+          <h2 style="margin-top: 30px; margin-bottom: 15px; font-size: 22px;">1. Information We Collect</h2>
+
+          <h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 18px;">1.1 User-Selected Content</h3>
+          <p style="margin-bottom: 15px;">
+            When you select text on a webpage and use our translation or other features, the extension temporarily captures this selected text to perform the requested function.
+          </p>
+
+          <h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 18px;">1.2 User Preferences</h3>
+          <p style="margin-bottom: 15px;">
+            The extension stores your preferences locally, including:
+          </p>
+          <ul style="margin-left: 20px; margin-bottom: 15px; list-style-type: disc;">
+            <li style="margin-bottom: 5px;">Your preferred theme (light/dark)</li>
+            <li style="margin-bottom: 5px;">Selected language preferences for translation</li>
+            <li style="margin-bottom: 5px;">Your preferred search engine</li>
+            <li style="margin-bottom: 5px;">Your chosen button action (translate, search, define)</li>
+          </ul>
+
+          <h2 style="margin-top: 30px; margin-bottom: 15px; font-size: 22px;">2. How We Use Information</h2>
+
+          <h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 18px;">2.1 API Communication</h3>
+          <p style="margin-bottom: 15px;">
+            When you use the translation or definition features, your selected text is sent to our service at server.gpeclub.com to process your request. This is necessary to provide the translation or definition functionality you've requested.
+          </p>
+
+          <h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 18px;">2.2 Local Storage</h3>
+          <p style="margin-bottom: 15px;">
+            Your preferences are stored locally on your device using Chrome's storage API to maintain your settings between sessions. These preferences are not transmitted to our servers except when needed to fulfill a specific function you request.
+          </p>
+
+          <h2 style="margin-top: 30px; margin-bottom: 15px; font-size: 22px;">3. Information Sharing</h2>
+
+          <h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 18px;">3.1 Third-Party Services</h3>
+          <p style="margin-bottom: 15px;">
+            When you use translation or definition features, the selected text is sent to our API service (server.gpeclub.com) to process your request. The extension does not share your data with any other third parties.
+          </p>
+
+          <h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 18px;">3.2 Search Function</h3>
+          <p style="margin-bottom: 15px;">
+            If you use the search function, your selected text will be used to create a search query that opens in your browser using your selected search engine (Google or Bing).
+          </p>
+
+          <h2 style="margin-top: 30px; margin-bottom: 15px; font-size: 22px;">4. Data Retention</h2>
+          <p style="margin-bottom: 15px;">
+            The extension does not permanently store the text you select for translation or other functions beyond what is necessary to perform the requested action. Once processed, the selected text is not retained by the extension.
+          </p>
+
+          <h2 style="margin-top: 30px; margin-bottom: 15px; font-size: 22px;">5. User Controls</h2>
+
+          <h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 18px;">5.1 Extension Settings</h3>
+          <p style="margin-bottom: 15px;">
+            You can customize how the extension functions through the settings panel, including:
+          </p>
+          <ul style="margin-left: 20px; margin-bottom: 15px; list-style-type: disc;">
+            <li style="margin-bottom: 5px;">Changing the default action when clicking the extension button</li>
+            <li style="margin-bottom: 5px;">Selecting your preferred languages for translation</li>
+            <li style="margin-bottom: 5px;">Choosing your preferred search engine</li>
+          </ul>
+
+          <h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 18px;">5.2 Disabling or Removing</h3>
+          <p style="margin-bottom: 15px;">
+            You can disable or remove the extension at any time through your browser's extension management interface.
+          </p>
+
+          <h2 style="margin-top: 30px; margin-bottom: 15px; font-size: 22px;">6. Data Protection</h2>
+          <p style="margin-bottom: 15px;">
+            We implement appropriate technical measures including https to protect the information collected through our extension.
+          </p>
+
+          <h2 style="margin-top: 30px; margin-bottom: 15px; font-size: 22px;">7. Consent</h2>
+          <p style="margin-bottom: 40px;">
+            By installing and using the Extension GPE, you consent to the collection and use of information as described in this Privacy Policy.
+          </p>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>&copy; 2025 GPE Interactive</p>
+        <div style="margin-top: 10px;">
+          <a href="{% url 'index' %}" style="color: var(--secondary-text); margin: 0 10px;">Home</a>
+          <a href="{% url 'school' %}" style="color: var(--secondary-text); margin: 0 10px;">School</a>
+          <a href="{% url 'privacy' %}" style="color: var(--secondary-text); margin: 0 10px;">Privacy Policy</a>
+          <a href="{% url 'about' %}" style="color: var(--secondary-text); margin: 0 10px;">About</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+        const centralContent = document.querySelector('.central-content');
+
+        // Check if sidebar state is stored in localStorage
+        const sidebarState = localStorage.getItem('sidebarCollapsed');
+
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('collapsed');
+          mainContent.classList.add('expanded');
+          centralContent.classList.add('centered');
+          sidebarToggle.classList.add('active');
+        }
+        // Toggle sidebar when the button is clicked
+        sidebarToggle.addEventListener('click', function() {
+          sidebar.classList.toggle('collapsed');
+          mainContent.classList.toggle('expanded');
+          mainContent.classList.toggle('blur');
+          sidebarToggle.classList.toggle('active');
+          document.body.classList.toggle('sidebar-hidden');
+
+          // Store sidebar state in localStorage
+          const isCollapsed = sidebar.classList.contains('collapsed');
+          localStorage.setItem('sidebarCollapsed', isCollapsed);
+
+          // Force a reflow to ensure animations work properly on mobile
+          if (window.innerWidth <= 768) {
+            sidebar.offsetHeight; // This triggers a reflow
+          }
+        });
+
+        // Adjust for window resize
+        window.addEventListener('resize', function() {
+          // When resizing to desktop view, restore proper positioning
+          if (window.innerWidth > 768 && sidebarToggle.classList.contains('active')) {
+            mainContent.classList.add('expanded');
+          }
+        });
+      });
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const themeToggle = document.getElementById('themeToggle');
+        const logoImage = document.querySelector('.sidebar-header img');
+
+        // Function to update the logo based on theme
+        function updateLogo(theme) {
+          if (theme === 'light') {
+            logoImage.src = logoImage.src.replace('gpe.png', 'logo.png');
+          } else {
+            logoImage.src = logoImage.src.replace('logo.png', 'gpe.png');
+          }
+        }
+
+        // Check for saved theme preference or use device preference
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+        // Set initial theme
+        let initialTheme;
+        if (savedTheme) {
+          initialTheme = savedTheme;
+        } else if (prefersDarkScheme.matches) {
+          initialTheme = 'dark';
+        } else {
+          initialTheme = 'light';
+        }
+
+        document.documentElement.setAttribute('data-theme', initialTheme);
+        updateLogo(initialTheme);
+
+        // Toggle theme when button is clicked
+        themeToggle.addEventListener('click', function() {
+          const currentTheme = document.documentElement.getAttribute('data-theme');
+          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+          document.documentElement.setAttribute('data-theme', newTheme);
+          localStorage.setItem('theme', newTheme);
+          updateLogo(newTheme);
+        });
+      });
+    </script>
+  </body>
+</html>
