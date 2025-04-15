@@ -289,7 +289,7 @@ def get_openai_response(request):
             data = json.loads(request.body)
             prompt = data.get('prompt', '').strip()
             user_input = data.get('input', '').strip()
-            model = data.get('model', 'gpt-4o-mini')
+            model = data.get('model', 'gpt-4.1-mini')
             max_tokens = int(data.get('max_tokens', 150))
 
             if not prompt or not user_input:

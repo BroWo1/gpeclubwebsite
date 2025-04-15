@@ -9,17 +9,20 @@ class MagazineReader {
     this.zoomLevel = 1;
     this.toolbarVisible = true;
     this.autoHideToolbarTimer = null;
+    this.isMobileView = false; // Add state for mobile view
     this.init();
   }
 
   init() {
     try {
       this.createReaderInterface();
+      this.checkLayout(); // Initial layout check
       this.loadSpread(this.currentPage);
       this.updatePageCounter();
       this.setupToolbarAutoHide();
       this.setupKeyboardNavigation();
       this.syncWithSiteTheme();
+      window.addEventListener('resize', () => this.handleResize()); // Add resize listener
     } catch (error) {
       console.error('Error initializing magazine reader:', error);
       this.container.innerHTML = `<div class="error-message">Failed to load magazine: ${error.message}</div>`;
@@ -81,7 +84,41 @@ class MagazineReader {
 
     this.addSwipeGestures();
   }
-  // Modify the loadSpread method to handle cover page and layout resets
+
+  checkLayout() {
+    const wasMobile = this.isMobileView;
+    this.isMobileView = window.matchMedia("(max-width: 768px)").matches;
+    const readerElement = this.container.querySelector('.magazine-reader');
+
+    if (this.isMobileView) {
+      readerElement.classList.add('mobile-view');
+    } else {
+      readerElement.classList.remove('mobile-view');
+    }
+
+    // Return true if the layout mode changed
+    return wasMobile !== this.isMobileView;
+  }
+
+  handleResize() {
+    const layoutChanged = this.checkLayout();
+    // If layout changed (e.g., desktop to mobile or vice-versa), reload the current view
+    if (layoutChanged && this.currentPage) {
+       // Ensure currentPage is valid for the new layout before reloading
+       if (!this.isMobileView && this.currentPage % 2 !== 0 && this.currentPage !== 1) {
+         // Switched to desktop, currently on an odd page (meant for right side)
+         // Go back one page to show the correct spread start
+         this.currentPage--;
+       }
+       this.loadSpread(this.currentPage);
+       this.updatePageCounter(); // Update counter for new layout
+    }
+    // Adjust fullscreen positioning if active during resize
+    if (this.container.querySelector('.magazine-reader').classList.contains('fullscreen-mode')) {
+        this.adjustFullscreenLayout();
+    }
+  }
+
   loadSpread(pageNum) {
     if (this.pageRendering) return;
 
@@ -96,46 +133,71 @@ class MagazineReader {
     const leftCorner = this.container.querySelector('.left-corner');
     const rightCorner = this.container.querySelector('.right-corner');
     const pageSpreadElement = this.container.querySelector('.page-spread');
-    // const isFullscreen = this.container.querySelector('.magazine-reader').classList.contains('fullscreen-mode'); // No longer strictly needed for cover positioning logic
 
     // --- Comprehensive Reset ---
-    // Reset visibility for both page elements and their images
     leftPageElement.style.visibility = 'visible';
     rightPageElement.style.visibility = 'visible';
     leftPage.style.visibility = 'visible';
     rightPage.style.visibility = 'visible';
 
-    // Reset display properties (ensure they are flex items)
     leftPageElement.style.display = 'flex';
     rightPageElement.style.display = 'flex';
-    leftPage.style.display = 'block'; // Image display
-    rightPage.style.display = 'block'; // Image display
+    leftPage.style.display = 'block';
+    rightPage.style.display = 'block';
 
-    // Reset corners
     leftCorner.style.display = 'block';
     rightCorner.style.display = 'block';
 
-    // Reset potentially conflicting inline styles
     rightPageElement.style.margin = '';
-    rightPageElement.style.maxWidth = ''; // Remove max-width override
-    leftPageElement.style.maxWidth = '';  // Remove max-width override
-    pageSpreadElement.style.justifyContent = ''; // Use default flex alignment
+    rightPageElement.style.maxWidth = '';
+    leftPageElement.style.maxWidth = '';
+    pageSpreadElement.style.justifyContent = '';
 
+    // --- Mobile View Logic ---
+    if (this.isMobileView) {
+      leftPageElement.style.display = 'none';
+      leftPage.src = '';
+      leftPage.alt = '';
+      leftCorner.style.display = 'none';
 
-    // Handle cover page (page 1)
+      rightPageElement.style.visibility = 'visible';
+      rightPage.style.visibility = 'visible';
+      rightPageElement.style.display = 'flex';
+      rightPage.style.display = 'block';
+      rightCorner.style.display = 'none';
+
+      const imageUrl = `${this.imageBaseUrl}${this.magazineId}_Page_${pageNum}.jpg`;
+
+      rightPage.onload = () => {
+        this.currentPage = pageNum;
+        this.updatePageCounter();
+        this.pageRendering = false;
+        loadingIndicator.style.display = 'none';
+      };
+      rightPage.onerror = () => {
+        console.error(`Failed to load image: ${imageUrl}`);
+        this.pageRendering = false;
+        loadingIndicator.style.display = 'none';
+        rightPage.alt = `Failed to load page ${pageNum}`;
+        rightPage.src = `/static/imgs/page_error.png`;
+      };
+      rightPage.src = imageUrl;
+      rightPage.alt = `Page ${pageNum}`;
+
+      return;
+    }
+
+    // --- Desktop View Logic ---
     if (pageNum === 1) {
       const rightImageUrl = `${this.imageBaseUrl}${this.magazineId}_Page_1.jpg`;
 
-      // Make left page invisible but keep its space in the layout
       leftPageElement.style.visibility = 'hidden';
-      leftPage.style.visibility = 'hidden'; // Hide the image content too
-      leftCorner.style.display = 'none'; // Hide the corner interaction
+      leftPage.style.visibility = 'hidden';
+      leftCorner.style.display = 'none';
 
-      // Clear the src for the hidden left page to avoid unnecessary loading/errors
       leftPage.src = '';
       leftPage.alt = '';
 
-      // Load the cover image onto the right page
       rightPage.onload = () => {
         this.currentPage = pageNum;
         this.updatePageCounter();
@@ -147,16 +209,12 @@ class MagazineReader {
         this.pageRendering = false;
         loadingIndicator.style.display = 'none';
         rightPage.alt = `Failed to load cover`;
-        rightPage.src = `/static/imgs/page_error.png`; // Provide a fallback image
+        rightPage.src = `/static/imgs/page_error.png`;
       };
       rightPage.src = rightImageUrl;
       rightPage.alt = `Cover`;
 
-    }
-    // Handle regular spreads (pages 2-3, 4-5, etc.)
-    else {
-      // Visibility/Display already reset above
-
+    } else {
       const leftPageNum = pageNum;
       const rightPageNum = pageNum + 1;
 
@@ -166,19 +224,17 @@ class MagazineReader {
       let pagesToLoad = 0;
       let pagesLoaded = 0;
 
-      // --- Left Page Loading ---
       pagesToLoad++;
       leftPage.onload = () => pageLoadHandler();
       leftPage.onerror = () => {
         console.error(`Failed to load image: ${leftImageUrl}`);
         leftPage.alt = `Failed to load page ${leftPageNum}`;
         leftPage.src = `/static/imgs/page_error.png`;
-        pageLoadHandler(); // Still count as "loaded" (with error)
+        pageLoadHandler();
       };
       leftPage.src = leftImageUrl;
       leftPage.alt = `Page ${leftPageNum}`;
 
-      // --- Right Page Loading (if exists) ---
       if (rightPageNum <= this.totalPages) {
         pagesToLoad++;
         rightPage.onload = () => pageLoadHandler();
@@ -186,20 +242,18 @@ class MagazineReader {
           console.error(`Failed to load image: ${rightImageUrl}`);
           rightPage.alt = `Failed to load page ${rightPageNum}`;
           rightPage.src = `/static/imgs/page_error.png`;
-          pageLoadHandler(); // Still count as "loaded" (with error)
+          pageLoadHandler();
         };
         rightPage.src = rightImageUrl;
         rightPage.alt = `Page ${rightPageNum}`;
       } else {
-        // Last page is odd, make the right page invisible but keep space
         rightPageElement.style.visibility = 'hidden';
         rightPage.style.visibility = 'hidden';
         rightCorner.style.display = 'none';
-        rightPage.src = ''; // Clear src
+        rightPage.src = '';
         rightPage.alt = '';
       }
 
-      // --- Page Load Handler ---
       const pageLoadHandler = () => {
         pagesLoaded++;
         if (pagesLoaded === pagesToLoad) {
@@ -215,40 +269,54 @@ class MagazineReader {
   prevPage() {
     if (this.currentPage === 1) return;
 
-    this.animatePageTurn('right');
-
-    if (this.currentPage === 2) {
-      // From page 2-3 to cover (page 1)
-      this.loadSpread(1);
+    if (this.isMobileView) {
+      this.animatePageTurn('right');
+      this.loadSpread(this.currentPage - 1);
     } else {
-      // From page 4-5 or later, go back 2 pages
-      this.loadSpread(this.currentPage - 2);
+      this.animatePageTurn('right');
+      if (this.currentPage === 2) {
+        this.loadSpread(1);
+      } else {
+        this.loadSpread(this.currentPage - 2);
+      }
     }
   }
 
   nextPage() {
-    if (this.currentPage === 1) {
-      // From cover to page 2-3
-      this.animatePageTurn('left');
-      this.loadSpread(2);
-    } else if (this.currentPage + 2 <= this.totalPages) {
-      // Normal spread navigation
-      this.animatePageTurn('left');
-      this.loadSpread(this.currentPage + 2);
+    if (this.isMobileView) {
+      if (this.currentPage < this.totalPages) {
+        this.animatePageTurn('left');
+        this.loadSpread(this.currentPage + 1);
+      }
+    } else {
+      if (this.currentPage === 1) {
+        this.animatePageTurn('left');
+        this.loadSpread(2);
+      } else if (this.currentPage + 2 <= this.totalPages) {
+        this.animatePageTurn('left');
+        this.loadSpread(this.currentPage + 2);
+      }
     }
   }
 
   updatePageCounter() {
     const currentPageElem = this.container.querySelector('.current-page');
-    if (this.currentPage === 1) {
-      currentPageElem.textContent = "Cover";
+    if (this.isMobileView) {
+      currentPageElem.textContent = `${this.currentPage}`;
     } else {
-      const endPage = Math.min(this.currentPage + 1, this.totalPages);
-      currentPageElem.textContent = `${this.currentPage}-${endPage}`;
+      if (this.currentPage === 1) {
+        currentPageElem.textContent = "Cover";
+      } else {
+        const endPage = Math.min(this.currentPage + 1, this.totalPages);
+        currentPageElem.textContent = `${this.currentPage}-${endPage}`;
+      }
     }
+    this.container.querySelector('.total-pages').textContent = this.totalPages;
   }
 
   zoom(delta) {
+    if (this.isMobileView) return;
+
     const pages = this.container.querySelectorAll('.magazine-page');
     this.zoomLevel += delta;
 
@@ -272,74 +340,70 @@ class MagazineReader {
       img.style.transform = 'scale(1)';
     });
   }
-animatePageTurn(direction) {
-  const pageContainer = this.container.querySelector('.page-container');
-  const isFullscreen = this.container.querySelector('.magazine-reader').classList.contains('fullscreen-mode');
 
-  if (direction === 'left') {
-    // Going to next page, animate right page turning
-    const rightPage = this.container.querySelector('.right-page');
-    if (rightPage) {
-      const clone = rightPage.cloneNode(true);
-      clone.classList.add('turning-page', 'turning-right-page');
-      pageContainer.appendChild(clone);
-
-      // Position the clone correctly, especially in fullscreen mode
-      if (isFullscreen) {
-        // Get the position of the original right page
-        const rect = rightPage.getBoundingClientRect();
-        const containerRect = pageContainer.getBoundingClientRect();
-
-        // Set the clone's position to match the original
-        clone.style.position = 'absolute';
-        clone.style.top = `${rect.top - containerRect.top}px`;
-        clone.style.left = `${rect.left - containerRect.left}px`;
-        clone.style.width = `${rect.width}px`;
-        clone.style.height = `${rect.height}px`;
-      }
-
-      // Apply the turning animation
-      setTimeout(() => {
-        clone.classList.add('turn-left');
-      }, 10);
-
-      setTimeout(() => {
-        clone.remove();
-      }, 500);
+  animatePageTurn(direction) {
+    if (this.isMobileView) {
+      return;
     }
-  } else {
-    // Going to previous page, animate left page turning
-    const leftPage = this.container.querySelector('.left-page');
-    if (leftPage) {
-      const clone = leftPage.cloneNode(true);
-      clone.classList.add('turning-page', 'turning-left-page');
-      pageContainer.appendChild(clone);
 
-      // Position the clone correctly, especially in fullscreen mode
-      if (isFullscreen) {
-        // Get the position of the original left page
-        const rect = leftPage.getBoundingClientRect();
-        const containerRect = pageContainer.getBoundingClientRect();
+    const pageContainer = this.container.querySelector('.page-container');
+    const isFullscreen = this.container.querySelector('.magazine-reader').classList.contains('fullscreen-mode');
 
-        // Set the clone's position to match the original
-        clone.style.position = 'absolute';
-        clone.style.top = `${rect.top - containerRect.top}px`;
-        clone.style.left = `${rect.left - containerRect.left}px`;
-        clone.style.width = `${rect.width}px`;
-        clone.style.height = `${rect.height}px`;
+    if (direction === 'left') {
+      const rightPage = this.container.querySelector('.right-page');
+      if (rightPage) {
+        const clone = rightPage.cloneNode(true);
+        clone.classList.add('turning-page', 'turning-right-page');
+        pageContainer.appendChild(clone);
+
+        if (isFullscreen) {
+          const rect = rightPage.getBoundingClientRect();
+          const containerRect = pageContainer.getBoundingClientRect();
+
+          clone.style.position = 'absolute';
+          clone.style.top = `${rect.top - containerRect.top}px`;
+          clone.style.left = `${rect.left - containerRect.left}px`;
+          clone.style.width = `${rect.width}px`;
+          clone.style.height = `${rect.height}px`;
+        }
+
+        setTimeout(() => {
+          clone.classList.add('turn-left');
+        }, 10);
+
+        setTimeout(() => {
+          clone.remove();
+        }, 500);
       }
+    } else {
+      const leftPage = this.container.querySelector('.left-page');
+      if (leftPage) {
+        const clone = leftPage.cloneNode(true);
+        clone.classList.add('turning-page', 'turning-left-page');
+        pageContainer.appendChild(clone);
 
-      // Apply the turning animation
-      setTimeout(() => {
-        clone.classList.add('turn-right');
-      }, 10);
+        if (isFullscreen) {
+          const rect = leftPage.getBoundingClientRect();
+          const containerRect = pageContainer.getBoundingClientRect();
 
-      setTimeout(() => {
-        clone.remove();
-      }, 500);
+          clone.style.position = 'absolute';
+          clone.style.top = `${rect.top - containerRect.top}px`;
+          clone.style.left = `${rect.left - containerRect.left}px`;
+          clone.style.width = `${rect.width}px`;
+          clone.style.height = `${rect.height}px`;
+        }
+
+        setTimeout(() => {
+          clone.classList.add('turn-right');
+        }, 10);
+
+        setTimeout(() => {
+          clone.remove();
+        }, 500);
+      }
     }
   }
-}
+
   addSwipeGestures() {
     const pageContainer = this.container.querySelector('.page-container');
     let startX;
@@ -362,69 +426,68 @@ animatePageTurn(direction) {
       }
     });
   }
-toggleFullscreen() {
-  const readerElement = this.container.querySelector('.magazine-reader');
-  const wasFullscreen = readerElement.classList.contains('fullscreen-mode');
 
-  // Toggle fullscreen class
-  readerElement.classList.toggle('fullscreen-mode');
+  adjustFullscreenLayout() {
+    const readerElement = this.container.querySelector('.magazine-reader');
+    if (!readerElement.classList.contains('fullscreen-mode')) return;
 
-  // Check if entering or exiting fullscreen
-  const isFullscreen = readerElement.classList.contains('fullscreen-mode');
-
-  if (isFullscreen) {
-    // Save the original dimensions to restore later
-    readerElement.dataset.originalWidth = readerElement.style.width || '';
-    readerElement.dataset.originalHeight = readerElement.style.height || '';
-    readerElement.dataset.originalLeft = readerElement.style.left || '';
-
-    // Check if sidebar is collapsed
     const sidebar = document.querySelector('.sidebar');
-    const sidebarCollapsed = sidebar && sidebar.classList.contains('collapsed');
+    const sidebarCollapsed = !sidebar || sidebar.classList.contains('collapsed');
 
-    // Apply appropriate positioning based on sidebar state
-    if (sidebar && !sidebarCollapsed) {
-      // If sidebar is visible, account for it
+    if (sidebar && !sidebarCollapsed && !this.isMobileView) {
       const sidebarWidth = sidebar.offsetWidth;
       readerElement.style.left = `${sidebarWidth}px`;
       readerElement.style.width = `calc(100vw - ${sidebarWidth}px)`;
     } else {
-      // If sidebar is collapsed or doesn't exist
       readerElement.style.left = '0';
       readerElement.style.width = '100vw';
     }
 
-    // Ensure page spread scales correctly in fullscreen
     const pageSpread = this.container.querySelector('.page-spread');
     if (pageSpread) {
-      pageSpread.style.maxHeight = '90vh';
-      pageSpread.style.maxWidth = '90vw';
-    }
-  } else {
-    // Restore original dimensions when exiting fullscreen
-    readerElement.style.width = readerElement.dataset.originalWidth;
-    readerElement.style.height = readerElement.dataset.originalHeight;
-    readerElement.style.left = readerElement.dataset.originalLeft;
-
-    // Reset page spread to original dimensions
-    const pageSpread = this.container.querySelector('.page-spread');
-    if (pageSpread) {
-      pageSpread.style.maxHeight = '90%';
-      pageSpread.style.maxWidth = '90%';
+        if (this.isMobileView) {
+            pageSpread.style.maxHeight = '95vh';
+            pageSpread.style.maxWidth = '95vw';
+        } else {
+            pageSpread.style.maxHeight = '90vh';
+            pageSpread.style.maxWidth = '90vw';
+        }
     }
   }
 
-  // Reset zoom when entering/exiting fullscreen
-  this.resetZoom();
+  toggleFullscreen() {
+    const readerElement = this.container.querySelector('.magazine-reader');
+    const wasFullscreen = readerElement.classList.contains('fullscreen-mode');
 
-  // Force a re-render of the current spread after a small delay
-  // This helps with page display issues
-  setTimeout(() => {
-    if (this.currentPage) {
-      this.loadSpread(this.currentPage);
+    readerElement.classList.toggle('fullscreen-mode');
+    const isFullscreen = readerElement.classList.contains('fullscreen-mode');
+
+    if (isFullscreen) {
+      readerElement.dataset.originalWidth = readerElement.style.width || '';
+      readerElement.dataset.originalHeight = readerElement.style.height || '';
+      readerElement.dataset.originalLeft = readerElement.style.left || '';
+      this.adjustFullscreenLayout();
+    } else {
+      readerElement.style.width = readerElement.dataset.originalWidth;
+      readerElement.style.height = readerElement.dataset.originalHeight;
+      readerElement.style.left = readerElement.dataset.originalLeft;
+
+      const pageSpread = this.container.querySelector('.page-spread');
+      if (pageSpread) {
+        pageSpread.style.maxHeight = '';
+        pageSpread.style.maxWidth = '';
+      }
     }
-  }, 50);
-}
+
+    this.resetZoom();
+
+    setTimeout(() => {
+      if (this.currentPage) {
+        this.loadSpread(this.currentPage);
+      }
+    }, 50);
+  }
+
   showToolbar() {
     const toolbar = this.container.querySelector('.reader-toolbar');
     toolbar.classList.remove('reader-toolbar-hidden');
@@ -452,10 +515,8 @@ toggleFullscreen() {
   }
 
   setupToolbarAutoHide() {
-    // Initial toolbar timer
     this.resetToolbarTimer();
 
-    // Keep toolbar visible when hovering over it
     const toolbar = this.container.querySelector('.reader-toolbar');
     toolbar.addEventListener('mouseenter', () => {
       if (this.autoHideToolbarTimer) {
@@ -470,11 +531,14 @@ toggleFullscreen() {
 
   setupKeyboardNavigation() {
     document.addEventListener('keydown', (e) => {
-      // Only handle keys if this reader is visible in viewport
       const rect = this.container.getBoundingClientRect();
       const visible = rect.top < window.innerHeight && rect.bottom > 0;
 
       if (!visible) return;
+
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+          e.preventDefault();
+      }
 
       switch (e.key) {
         case 'ArrowLeft':
@@ -501,22 +565,18 @@ toggleFullscreen() {
   }
 
   syncWithSiteTheme() {
-    // Apply current theme state
     const isDarkTheme = document.body.getAttribute('data-theme') !== 'light';
     const readerElement = this.container.querySelector('.magazine-reader');
 
-    // Initially set theme
     if (isDarkTheme) {
       readerElement.classList.add('dark-theme');
     } else {
       readerElement.classList.remove('dark-theme');
     }
 
-    // Listen for theme change events
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {
       themeToggle.addEventListener('click', () => {
-        // Short delay to let the site theme change first
         setTimeout(() => {
           const isDarkTheme = document.body.getAttribute('data-theme') !== 'light';
           if (isDarkTheme) {
@@ -528,14 +588,11 @@ toggleFullscreen() {
       });
     }
 
-    // Listen for sidebar collapse/expand
     const sidebarToggle = document.getElementById('sidebarToggle');
     if (sidebarToggle) {
       sidebarToggle.addEventListener('click', () => {
-        // Adjust reader fullscreen state if active
-        if (readerElement.classList.contains('fullscreen-mode')) {
-          setTimeout(() => this.toggleFullscreen(), 10);
-          setTimeout(() => this.toggleFullscreen(), 600);
+        if (this.container.querySelector('.magazine-reader').classList.contains('fullscreen-mode')) {
+          setTimeout(() => this.adjustFullscreenLayout(), 300);
         }
       });
     }

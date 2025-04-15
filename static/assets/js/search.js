@@ -56,7 +56,7 @@ async function AI(text) {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCsrfToken(),
             },
-            body: JSON.stringify({ prompt: prompt, input: text, model: 'gpt-4o', max_tokens: 150 }),
+            body: JSON.stringify({ prompt: prompt, input: text, model: 'gpt-4.1', max_tokens: 150 }),
         });
 
         console.log('Response status:', fetchResponse.status); // Debug logging
