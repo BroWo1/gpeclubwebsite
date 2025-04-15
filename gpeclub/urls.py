@@ -30,6 +30,8 @@ urlpatterns = ([
     path('vocab/ai/<str:set_name>/', views.ai, name='ai'),
     path('vocab/mcq/<str:set_name>/', views.mcq, name='mcq'),
     path('privacy/', views.privacy, name='privacy'),
+path('magazine/pdf/<str:magazine_id>/', views.magazine_pdf, name='magazine_pdf'),
+path('magazine/read/<str:magazine_id>/', views.magazine_reader, name='magazine_reader'),
 
     path('api/get-openai-response/', views.get_openai_response, name='get_openai_response'),
 

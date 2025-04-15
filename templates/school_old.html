@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en" data-bs-theme="auto">
+<head>
+    {% load static %}
+    <script src="{%  static 'assets/js/color-modes.js' %}"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <!--<meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">-->
+    <meta name="generator" content="Hugo 0.122.0">
+    <title>Login</title>
+      <link rel="shortcut icon" href = "{% static 'imgs/logo.ico' %}"></link>
+    <!--link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/heroes/"-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
+    <link href="{% static 'assets/dist/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'basestyles.css' %}" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="{% static 'heroes.css' %}" rel="stylesheet">
+    <style>
+        .whiteCover
+        {
+            opacity:0.8;
+            background:white;
+            width:100%;
+            height:100%;
+            margin-top:-100%;
+        }
+        .maxSize
+        {
+            width:100%;
+            height:100%;
+        }
+        .parent
+        {
+            max-width: 500px;
+            margin: auto auto;
+        }
+        .align-left-form {
+            text-align: left;
+        }
+        .align-left-form .form-label,
+        .align-left-form .form-check-label,
+        .align-left-form .form-text {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="container">
+            <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+                <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+                    <svg class="bi me-2" width="40" height="40">
+                        <!--<use href="{% static 'imgs/logo.png' %}"/>-->
+                        <img src="{% static 'imgs/logo.png' %}" width="40" height="40" loading="lazy">
+                    </svg>
+                    <span class="fs-4">GPE Club</span>
+                </a>
+
+                <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+                    <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
+                </form>
+
+                <ul class="nav nav-pills">
+                    <li class="nav-item"><a href="{% url 'index' %}" class="nav-link" aria-current="page">Home</a></li>
+                    <li class="nav-item"><a href="{% url 'search' %}" class="nav-link active">Projects</a></li>
+                    <li class="nav-item"><a href="{% url 'vocabList' %}" class="nav-link">Vocab</a></li>
+                    <li class="nav-item"><a href="{% url 'school' %}" class="nav-link">School</a></li>
+                </ul>
+            </header>
+        </div>
+        <div class="b-example-divider"></div>
+        <div class="px-4 pt-5 my-5 text-center border-bottom">
+            <h1 style="padding-bottom: 50px">Date: {{current_date}}</h1>
+            <a href="../phys2/" style="align-items: center"><button class="btn btn-secondary">AP Physics 2 Review</button></a>
+            <br><br><br>
+
+            <h3>Powerschool Login</h3>
+            <!--
+            <form method="POST" action="../powerschool/" onsubmit="submitForm(event)">
+                {% csrf_token %}
+                <label for="usr">Username: </label>
+                <input type="text" id="usr" name="usr">
+                <br/>
+                <label for="pw" style="padding-top: 15px; padding-bottom: 15px">Password:</label>
+                <input type="password" id="pw" name="pw">
+                <br/>
+                <input type="submit" value="Login">
+                <br/>
+                <input type="checkbox" id="ck" name="ck">
+                <label for="ck">Remember Me</label>
+            </form>
+            -->
+            <div class="parent">
+            <form method="POST" action="../powerschool/" onsubmit="submitForm(event)" style="padding-bottom: 100px" class="align-left-form">
+                {% csrf_token %}
+              <div class="mb-3">
+                <label for="usr" class="form-label">Username: </label>
+                <input type="text" class="form-control" id="usr" aria-describedby="emailHelp" name="usr">
+                <div id="emailHelp" class="form-text">We'll never share your username and password with anyone else.</div>
+              </div>
+              <div class="mb-3">
+                <label for="pw" class="form-label">Password: </label>
+                <input type="password" class="form-control" id="pw" name="pw">
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="ck" name="ck">
+                <label class="form-check-label" for="ck">Remember Me</label>
+              </div>
+              <button type="submit" class="btn btn-primary" value="Login">Submit</button>
+            </form >
+            </div>
+        </div>
+
+
+        <div class="b-example-divider"></div>
+        <div class="container">
+            <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+                <p class="col-md-4 mb-0 text-body-secondary">&copy; 2024 GPE Interactive</p>
+
+                <a href="/" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+                    <svg class="bi me-2" width="40" height="40">
+                        <img src="{% static 'imgs/logo.png' %}" width="40" height="40" loading="lazy">
+                    </svg>
+                </a>
+
+                <ul class="nav col-md-4 justify-content-end">
+                    <li class="nav-item"><a href="{% url 'index' %}" class="nav-link px-2 text-body-secondary">Home</a></li>
+                    <li class="nav-item"><a href="{% url 'school' %}" class="nav-link px-2 text-body-secondary">School</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">FAQs</a></li>
+                    <li class="nav-item"><a href="{% url 'about' %}" class="nav-link px-2 text-body-secondary">About</a></li>
+                </ul>
+            </footer>
+        </div>
+  </main>
+
+<script src="{% static 'assets/dist/js/bootstrap.bundle.min.js' %}"></script>
+<script>
+function submitForm(event) {
+    event.preventDefault();
+    var username = document.getElementById('usr').value;
+    var password = document.getElementById('pw').value;
+    fetch('../run_crawltest/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ usr: username, pw: password })
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              window.location.href = '../powerschool';
+              alert('Login successful');
+          } else {
+              alert('Login failed: ' + data.error);
+          }
+      });
+}
+</script>
+
+</body>
+</html>

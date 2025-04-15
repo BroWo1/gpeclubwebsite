@@ -28,8 +28,7 @@
         <a href="{% url 'index' %}">{% trans "Home" %}</a>
         <a href="{% url 'search' %}">{% trans "Projects" %}</a>
         <a href="{% url 'vocabList' %}">{% trans "Vocab" %}</a>
-        <a href="{% url 'school' %}">{% trans "School" %}</a>
-        <a href="{% url 'about' %}">{% trans "About" %}</a>
+        <a href="{% url 'school' %}">Magazine</a>        <a href="{% url 'about' %}">{% trans "About" %}</a>
         <div style="margin-top: auto;">
           <form action="{% url 'set_language' %}" method="post">
             {% csrf_token %}

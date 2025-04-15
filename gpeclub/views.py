@@ -197,7 +197,87 @@ from .route_mapper import RouteMapper
 from openai import OpenAI
 import logging
 import re
+from django.shortcuts import render
+from django.http import JsonResponse, HttpResponse, Http404
+from django.conf import settings
+import os
+import requests
+from urllib.parse import urlparse
 
+
+def magazine_pdf(request, magazine_id):
+    """Serve or proxy a magazine PDF file."""
+    try:
+        # Define a mapping of magazine_id to PDF URLs
+        # These could be stored in your database instead
+        magazine_pdfs = {
+            'feb25': 'https://server.gpeclub.com:4000/feb_mag.pdf',
+        }
+
+        if magazine_id not in magazine_pdfs:
+            raise Http404("Magazine not found")
+
+        pdf_url = magazine_pdfs[magazine_id]
+
+        # If PDF is on same server, serve directly
+        if pdf_url.startswith('/'):
+            pdf_path = os.path.join(settings.MEDIA_ROOT, pdf_url.lstrip('/'))
+            if not os.path.exists(pdf_path):
+                raise Http404("PDF file not found")
+
+            with open(pdf_path, 'rb') as pdf:
+                response = HttpResponse(pdf.read(), content_type='application/pdf')
+                response['Content-Disposition'] = f'inline; filename="{os.path.basename(pdf_path)}"'
+                return response
+
+        # If PDF is on remote server, proxy it
+        else:
+            response = requests.get(pdf_url, stream=True)
+            if response.status_code != 200:
+                raise Http404("Failed to retrieve PDF")
+
+            filename = os.path.basename(urlparse(pdf_url).path)
+            proxy_response = HttpResponse(
+                response.raw.read(),
+                content_type='application/pdf'
+            )
+            proxy_response['Content-Disposition'] = f'inline; filename="{filename}"'
+            return proxy_response
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def magazine_reader(request, magazine_id):
+    """Render the magazine reader page with image-based pages."""
+    # Magazine metadata with page counts
+    magazine_metadata = {
+        'feb25': {
+            'title': 'Resolution',
+            'issue': 'Issue #3',
+            'date': 'February 2025',
+            'total_pages': 24  # Number of page images available
+        },
+        'dec24': {
+            'title': 'Equanimity',
+            'issue': 'Issue #2',
+            'date': 'December 2024',
+            'total_pages': 32  # Number of page images available
+        },
+    }
+
+    if magazine_id not in magazine_metadata:
+        raise Http404("Magazine not found")
+
+    metadata = magazine_metadata[magazine_id]
+
+    return render(request, 'magazine_reader.html', {
+        'magazine_id': magazine_id,
+        'magazine_title': metadata['title'],
+        'magazine_issue': metadata['issue'],
+        'magazine_date': metadata['date'],
+        'total_pages': metadata['total_pages']
+    })
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -228,7 +308,7 @@ def get_openai_response(request):
             - Vocab List (/vocab/list): List of vocabulary sets for practice
             - Vocab AI (/vocab/ai/set1/): AI-powered vocabulary practice
             - Vocab MCQ (/vocab/mcq/set1/): Multiple choice vocabulary questions
-            - School (/projects/school/): School-related tools and resources
+            - Magazine (/projects/school/): Issues from Spartans Magazine
             - PowerSchool (/projects/powerschool/): PowerSchool grade viewer
             - About (/about/): Information about GPE Club and its members
 

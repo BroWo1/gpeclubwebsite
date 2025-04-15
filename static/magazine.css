@@ -1,0 +1,446 @@
+/* Integrated Magazine Reader CSS */
+:root {
+  /* Using website's existing color scheme */
+  --reader-bg: var(--background-color);
+  --toolbar-bg: var(--sidebar-color);
+  --page-bg: #ffffff;
+  --reader-text: var(--text-color);
+  --reader-secondary-text: var(--secondary-text);
+  --reader-border: var(--border-color);
+  --reader-shadow: rgba(0, 0, 0, 0.2);
+  --reader-button-bg: var(--primary-button);
+  --reader-button-hover: var(--primary-button-hover);
+  --reader-loader-bg: var(--background-color);
+}
+
+[data-theme="light"] {
+  --page-bg: #ffffff;
+  --reader-shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* Main container */
+.magazine-reader {
+  width: 100%;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--reader-bg);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px var(--reader-shadow);
+  overflow: hidden;
+  position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--reader-border);
+  margin-bottom: 20px;
+}
+
+/* Reader toolbar */
+.reader-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--reader-border);
+  z-index: 10;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.reader-toolbar-hidden {
+  transform: translateY(-100%);
+}
+
+/* Navigation and zoom controls */
+.nav-controls, .zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-info {
+  font-size: 14px;
+  color: var(--reader-secondary-text);
+  font-weight: 500;
+  min-width: 100px;
+  text-align: center;
+}
+
+.btn-prev, .btn-next, .btn-zoom-in, .btn-zoom-out, .btn-zoom-reset {
+  background: var(--hover-light);
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--reader-text);
+  transition: background-color 0.3s ease;
+  font-size: 12px;
+}
+
+.btn-prev:hover, .btn-next:hover, .btn-zoom-in:hover, .btn-zoom-out:hover, .btn-zoom-reset:hover {
+  background: var(--hover-heavy);
+}
+
+.btn-prev:active, .btn-next:active, .btn-zoom-in:active, .btn-zoom-out:active, .btn-zoom-reset:active {
+  background: var(--hover-heavy);
+}
+
+/* Page container and pages */
+.page-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--reader-bg);
+  transition: background 0.3s ease;
+}
+
+.page-spread {
+  display: flex;
+  height: 100%;
+  max-height: 90%;
+  max-width: 90%;
+  perspective: 2000px;
+  transform-style: preserve-3d;
+}
+
+.page {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  max-width: 50%;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.left-page {
+  border-right: 1px solid var(--reader-border);
+  transform-origin: right center;
+}
+
+.right-page {
+  transform-origin: left center;
+}
+
+.magazine-page {
+  background: var(--page-bg);
+  box-shadow: 0 4px 12px var(--reader-shadow);
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 4px;
+}
+
+/* Turning animation */
+.turning-spread {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  max-height: 90%;
+  max-width: 90%;
+  display: flex;
+  perspective: 2000px;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.turn-left {
+  animation: turnPageLeft 0.5s ease forwards;
+}
+
+.turn-right {
+  animation: turnPageRight 0.5s ease forwards;
+}
+
+@keyframes turnPageLeft {
+  0% {
+    transform: rotateY(0);
+    opacity: 1;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotateY(-180deg);
+    opacity: 0;
+  }
+}
+
+@keyframes turnPageRight {
+  0% {
+    transform: rotateY(0);
+    opacity: 1;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotateY(180deg);
+    opacity: 0;
+  }
+}
+
+/* Loading indicator */
+.loading-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 12px 24px;
+  background: var(--reader-loader-bg);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border-radius: 24px;
+  box-shadow: 0 4px 12px var(--reader-shadow);
+  z-index: 5;
+  font-weight: 500;
+  color: var(--reader-text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--reader-border);
+}
+
+.loading-indicator::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--reader-secondary-text);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Book spine effect */
+.book-spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 4px;
+  background: linear-gradient(90deg, var(--reader-shadow), transparent);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Page corners for hover effect */
+.page-corner {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  z-index: 3;
+  cursor: pointer;
+}
+
+.left-corner {
+  top: 0;
+  right: 0;
+}
+
+.right-corner {
+  top: 0;
+  left: 0;
+}
+
+.page-corner:hover::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: var(--page-bg);
+  transition: all 0.3s ease;
+  box-shadow: -2px 2px 5px var(--reader-shadow);
+}
+
+.left-corner:hover::after {
+  transform-origin: bottom left;
+  transform: rotate(-10deg);
+  right: -5px;
+  top: -5px;
+}
+
+.right-corner:hover::after {
+  transform-origin: bottom right;
+  transform: rotate(10deg);
+  left: -5px;
+  top: -5px;
+}
+
+/* Updated Fullscreen mode styles */
+.fullscreen-mode {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  border-radius: 0;
+  transition: all 0.3s ease;
+}
+
+
+/* Toolbar buttons */
+.toolbar-btn {
+  background: transparent;
+  border: none;
+  color: var(--reader-text);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.toolbar-btn:hover {
+  background: var(--hover-light);
+}
+
+/* Magazine header and metadata */
+.magazine-header {
+  text-align: left;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.magazine-metadata {
+  color: var(--reader-secondary-text);
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+.magazine-info {
+  margin-top: 15px;
+  color: var(--reader-secondary-text);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .magazine-reader {
+    height: 70vh;
+  }
+
+  .reader-toolbar {
+    padding: 10px 16px;
+  }
+
+  .zoom-controls {
+    display: none;
+  }
+
+  .page-spread {
+    flex-direction: column;
+    max-height: 95%;
+  }
+
+  .page {
+    max-width: 100%;
+  }
+
+  .left-page, .right-page {
+    border: none;
+  }
+
+  .magazine-header {
+    text-align: center;
+  }
+
+  .magazine-header h1 {
+    font-size: 24px;
+  }
+}
+.turning-page {
+  position: absolute;
+  height: 100%;
+  max-height: 90%;
+  width: 100%;
+  max-width: 45%;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 1;
+  box-shadow: 0 4px 16px var(--reader-shadow);
+}
+
+
+.turning-right-page {
+  transform-origin: left center;
+  right: auto;
+  left: 50%;
+}
+
+.turning-left-page {
+  transform-origin: right center;
+  left: auto;
+  right: 50%;
+}
+.turn-left, .turn-right {
+  backface-visibility: visible;
+}
+.fullscreen-mode .page-container {
+  height: calc(100vh - 65px);  /* Account for toolbar height */
+}
+
+.fullscreen-mode .page-spread {
+  max-height: 90vh;
+  max-width: 90vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fullscreen-mode .page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fullscreen-mode .magazine-page {
+  max-height: 85vh;
+  max-width: 45vw;
+  object-fit: contain;
+}
+
+/* Ensure turning pages display correctly in fullscreen */
+.fullscreen-mode .turning-page {
+  max-height: 85vh;
+  max-width: 45vw;
+}
+
+/* Improved responsive behavior for fullscreen on smaller screens */
+@media (max-width: 768px) {
+  .fullscreen-mode .page-spread {
+    flex-direction: column;
+  }
+
+  .fullscreen-mode .magazine-page {
+    max-width: 90vw;
+    max-height: 45vh;
+  }
+
+  .fullscreen-mode .turning-page {
+    max-width: 90vw;
+    max-height: 45vh;
+  }
+}
+
