@@ -99,7 +99,7 @@
 
           <form id="textForm">
 
-            <input type="search" class="search-bar" id="textInput" placeholder="Search the GPE website..." name="q">
+            <input type="search" class="search-bar" id="textInput" placeholder="e.g. Show me Spartans Magazine" name="q">
             <button type="submit" class="button2">Search</button>
           </form>
 
@@ -117,6 +117,8 @@
         <div class="action-buttons">
           <button class="action-button" onclick="openModal('aboutUsModal')">{% trans "About Us" %}</button>
           <button class="action-button" onclick="openModal('gpeHubModal')">GPEHub</button>
+                      <button class="action-button" onclick="openModal('extensionModal')">Extension GPE</button>
+
         </div>
 
 
@@ -210,12 +212,35 @@
             <br><br>
             Or...<br>
             MacOS Version:
-            <a href="https://github.com/BroWo1/GPE-Hub/releases/download/v1.4.2/GPEHub-1.4.2-MacOS.dmg" style="color: var(--text-color);">Download</a>
+            <a href="https://github.com/BroWo1/GPE-Hub/releases/download/v1.4.2/GPEHub-1.4.2-MacOS-arm64.dmg" style="color: var(--text-color);">Download</a>
             <br>
             Windows Version:
             <a href="https://github.com/BroWo1/GPE-Hub/releases/download/v1.4.2/GPEHub-1.4.2-Windows.exe" style="color: var(--text-color);">Download</a>
           </p>
         </div>
+      </div>
+    </div>
+    <div id="extensionModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>✨NEW: Extension GPE</h2>
+          <button class="modal-close" onclick="closeModal('extensionModal')">&times;</button>
+        </div>
+<div class="modal-body" style="display: flex; align-items: center; gap: 25px;">
+  <div class="img-container" style="flex-shrink: 0;">
+    <img src="{% static 'imgs/extension.png' %}" alt="Logo" class="profile-img">
+  </div>
+
+  <div style="flex-grow: 1;">
+    <h4 style="font-size: 20px; margin-top: 0;">Extension GPE is now published on the Chrome Web Store!</h4>
+    <p style="margin: 30px 0;">
+      <a style="color: var(--text-color);" href="https://chromewebstore.google.com/detail/mdkidaggpdhcaifbiakpdepclddngfcp?utm_source=item-share-cb">
+        Download now
+      </a>
+      for AI translation and definition features! Only on Extension GPE.
+    </p>
+  </div>
+</div>
       </div>
     </div>
 
@@ -282,12 +307,17 @@ document.addEventListener('DOMContentLoaded', initCarousel);
 function closeModal(modalId) {
   const modal = document.getElementById(modalId);
   modal.classList.remove('show');
+    if (modalId === 'extensionModal') {
+    localStorage.setItem('extensionModalClosed', 'true');
+  }
   // Wait for animation to complete before hiding
   setTimeout(() => {
     modal.style.display = 'none';
   }, 300);
 }
-
+  if (!localStorage.getItem('extensionModalClosed')) {
+    openModal('extensionModal');
+  }
 
       // Close modal when clicking outside of it
       window.onclick = function(event) {
