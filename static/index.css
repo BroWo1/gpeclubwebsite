@@ -360,6 +360,7 @@
   overflow: hidden; /* Changed from overflow-y: auto */
 
 
+
       }
 
       .modal-header {
@@ -447,6 +448,7 @@
       .profile-img:hover {
         transform: scale(1.25);
       }
+
 
       .github-corner {
         position: absolute;
@@ -755,5 +757,9 @@
     .action-buttons {
         margin-top: 20px;
         margin-bottom: 0;
+    }
+    .profile-img {
+        width: 100px;
+        height: 100px;
     }
   }
