@@ -27,7 +27,7 @@
   --input-border: #b0b0b0;
   --search-bg: #f0f0f0;
     --text-color-light: #898989;
-    --sidebar-hover: rgba(0, 0, 0, 0.05);
+    --sidebar-hover: #0000000d;
     --hover-light: rgba(0, 0, 0, 0.025);
     --hover-heavy: rgba(0, 0, 0, 0.1);
 }
@@ -457,6 +457,155 @@
         z-index: 100;
       }
 
+/* Agent Page Styles */
+.agent-container {
+  display: flex;
+  height: calc(100vh - 160px); /* Adjust based on header/footer/title height */
+  width: 100%;
+  gap: 20px;
+  margin-top: 20px; /* Add some space below title */
+}
+
+.chat-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--sidebar-color);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.pdf-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--sidebar-color);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.chat-history {
+  flex-grow: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Spacing between messages */
+}
+
+.chat-message {
+  padding: 10px 15px;
+  border-radius: 18px; /* More rounded bubbles */
+  max-width: 85%;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+.user-message {
+  background-color: var(--primary-button); /* Use button color for user */
+  color: var(--text-color);
+  align-self: flex-end;
+  border-bottom-right-radius: 5px; /* Slightly flatten one corner */
+}
+
+.ai-message {
+  background-color: var(--input-bg); /* Use input background for AI */
+  color: var(--text-color);
+  align-self: flex-start;
+  border-bottom-left-radius: 5px; /* Slightly flatten one corner */
+}
+
+.chat-input-area {
+  display: flex;
+  align-items: flex-end; /* Align items to bottom for multi-line input */
+  padding: 15px;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--sidebar-color); /* Ensure consistent background */
+}
+
+.chat-input {
+  flex-grow: 1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  resize: none;
+  margin-right: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  min-height: 42px; /* Match button height */
+  max-height: 150px;
+  overflow-y: auto;
+  box-sizing: border-box; /* Include padding and border in height */
+}
+
+.send-button {
+  padding: 0 15px;
+  height: 42px; /* Match input min-height */
+  border-radius: 8px;
+  background-color: var(--primary-button);
+  color: var(--text-color);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+.send-button:hover {
+  background-color: var(--primary-button-hover);
+}
+
+.pdf-controls {
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: center;
+  flex-shrink: 0; /* Prevent controls from shrinking */
+}
+
+.pdf-viewer {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--background-color);
+  padding: 10px;
+  overflow: hidden; /* Prevent iframe overflow issues */
+}
+
+.pdf-viewer iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.pdf-viewer p {
+    color: var(--secondary-text);
+    font-style: italic;
+}
+
+.upload-button {
+  background-color: var(--primary-button);
+  color: var(--text-color);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 14px;
+}
+
+.upload-button:hover {
+  background-color: var(--primary-button-hover);
+}
+
+
       /* Mobile adjustments */
       @media (max-width: 768px) {
         body {
@@ -464,18 +613,33 @@
           overflow-y: auto;
         }
 
-        .sidebar {
-          width: 100%;
-          height: auto;
-          max-height: 200px;
-        }
+        /* ... existing mobile styles ... */
 
-        .main-content {
-          height: auto;
+        .agent-container {
+          flex-direction: column;
+          height: auto; /* Let content flow */
+          gap: 15px;
+          margin-top: 15px;
         }
-
+        .chat-column, .pdf-column {
+          height: calc(50vh - 80px); /* Adjust height, consider header/title/gap */
+          min-height: 250px; /* Minimum usable height */
+        }
         .central-content {
-          padding: 10px;
+            padding: 10px; /* Reduce padding */
+            margin-top: 0; /* Adjust top margin */
+        }
+        .chat-input-area {
+            padding: 10px;
+        }
+        .pdf-controls {
+            padding: 10px;
+        }
+        .chat-history {
+            padding: 10px;
+        }
+        .chat-message {
+            max-width: 90%;
         }
       }
 

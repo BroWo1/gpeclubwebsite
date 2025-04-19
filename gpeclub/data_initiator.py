@@ -97,6 +97,14 @@ models.Project.objects.create(
     project_description='AP Physics 2 review page',
     project_cover=project_cover_path('2.png'),
 )
+models.Project.objects.create(
+    project_id=4,
+    project_name='Agent GPE 2.0',
+    project_url='agent/',
+    project_version='1.0.0',
+    project_description='An enhanced version of Agent GPE',
+    project_cover=project_cover_path('2.png'),
+)
 
 """
 python manage.py shell

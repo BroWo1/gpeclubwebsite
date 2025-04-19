@@ -165,6 +165,8 @@ import os
 import openai
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+OPENAI_ASSISTANT_ID = os.environ.get("OPENAI_ASSISTANT_ID", "asst_nQJkrwiOSXDb9iVc4Bsr2EjV")
+
 
 # Set the API key for OpenAI
 openai.api_key = OPENAI_API_KEY

@@ -9,9 +9,7 @@ import sys
 from powerschool.powerschool import PSLData
 from django.shortcuts import render
 from powerschool.powerschool.spiders.psl import PslSpider
-
 #import gpeclub.data_initiator
-
 
 
 """
@@ -97,6 +95,9 @@ def old(request):
 
 def privacy(request):
     return render(request, 'privacy.html')
+def agent(request):
+    # Simply render the agent template
+    return render(request, 'agent.html')
 
 from gpeclub.models import psl
 import time
@@ -203,6 +204,8 @@ from django.conf import settings
 import os
 import requests
 from urllib.parse import urlparse
+from django.middleware.csrf import get_token
+import mimetypes
 
 
 def magazine_pdf(request, magazine_id):
@@ -262,6 +265,12 @@ def magazine_reader(request, magazine_id):
             'title': 'Equanimity',
             'issue': 'Issue #2',
             'date': 'December 2024',
+            'total_pages': 32  # Number of page images available
+        },
+        'apr25': {
+            'title': 'Spring',
+            'issue': 'Issue #4',
+            'date': 'April 2025',
             'total_pages': 32  # Number of page images available
         },
     }
@@ -380,3 +389,129 @@ def get_openai_response(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request method.'}, status=405)
+
+
+
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+import logging
+from openai import OpenAI
+
+@csrf_exempt
+def upload_pdf_to_openai(request):
+    # Only allow POST
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405)
+
+    # Ensure a file was provided
+    if 'pdfFile' not in request.FILES:
+        return JsonResponse({'success': False, 'error': 'No PDF file provided.'}, status=400)
+
+    pdf_file = request.FILES['pdfFile']
+    if not pdf_file.name.lower().endswith('.pdf'):
+        return JsonResponse({'success': False, 'error': 'Invalid file type. Only PDF allowed.'}, status=400)
+
+    try:
+        client = OpenAI()
+        # Accept either a filesystem path or in-memory bytes tuple
+        if hasattr(pdf_file, 'temporary_file_path'):
+            file_arg = open(pdf_file.temporary_file_path(), 'rb')
+        else:
+            file_arg = (
+                pdf_file.name,
+                pdf_file.read(),
+                pdf_file.content_type
+            )
+
+        openai_file = client.files.create(
+            file=file_arg,
+            purpose='assistants'
+        )
+
+        return JsonResponse({'success': True, 'file_id': openai_file.id})
+
+    except Exception as e:
+        logger.error(f"Error uploading file to OpenAI: {e}")
+        return JsonResponse({'success': False, 'error': f'Failed to upload file: {str(e)}'}, status=500)
+
+@csrf_exempt
+def agent_chat(request):
+    # Only allow POST
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request method.'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        user_message = data.get('message', '').strip()
+        file_id = data.get('file_id')
+        model = data.get('model', 'gpt-4.1-mini')
+        max_tokens = int(data.get('max_tokens', 500))
+
+        if not user_message:
+            return JsonResponse({'error': 'Message is required.'}, status=400)
+
+        client = OpenAI()
+        assistant_id = settings.OPENAI_ASSISTANT_ID
+
+        # Create a new thread
+        thread = client.beta.threads.create()
+
+        # Post the user message (with optional PDF attachment)
+        msg_kwargs = {
+            'thread_id': thread.id,
+            'role': 'user',
+            'content': user_message
+        }
+        if file_id:
+            msg_kwargs['attachments'] = [{
+                'file_id': file_id,
+                'tools': [{'type': 'file_search'}]
+            }]
+        client.beta.threads.messages.create(**msg_kwargs)
+
+        system_instruction = (
+            "You are a helpful AI assistant specialized in analyzing and describing PDF documents. "
+            "Answer the user's questions based *only* on the content of the PDF file attached to the user's message. "
+            "Do not use any other documents or prior knowledge unless explicitly asked. "
+            "Do not repeat the user's exact phrasing; instead, provide concise, structured summaries or answers based on the attached PDF content."
+        )
+
+        # Run the assistant with instructions
+        run = client.beta.threads.runs.create_and_poll(
+            thread_id=thread.id,
+            assistant_id=assistant_id,
+            instructions=system_instruction
+        )
+
+        # Fetch the final assistant response
+        messages = client.beta.threads.messages.list(
+            thread_id=thread.id,
+            order="desc" # Get latest messages first
+        )
+
+        # Find the latest assistant message
+        assistant_response = "Sorry, I couldn't generate a response." # Default message
+        for msg in messages.data:
+            if msg.role == 'assistant':
+                # Extract text from the content block if available
+                if msg.content and len(msg.content) > 0:
+                    block = msg.content[0]
+                    # Ensure it's a text block before accessing text attribute
+                    if block.type == 'text':
+                         assistant_response = getattr(block.text, 'value', "Assistant message found, but content extraction failed.")
+                         break # Found the latest assistant message
+                else:
+                    assistant_response = "Assistant responded, but the message content was empty."
+                    break # Found an empty assistant message
+
+        logger.debug(f"User message: {user_message}")
+        logger.debug(f"File ID: {file_id}")
+        logger.debug(f"AI response: {assistant_response}")
+
+        return JsonResponse({'response': assistant_response})
+
+    except Exception as e:
+        logger.error(f"Error in agent chat: {e}")
+        return JsonResponse({'error': str(e)}, status=500)

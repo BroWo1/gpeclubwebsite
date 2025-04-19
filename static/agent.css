@@ -1,0 +1,160 @@
+.agent-container {
+    display: flex;
+    height: calc(100vh - 120px); /* Adjust based on header/footer height */
+    width: 100%;
+    gap: 20px;
+  }
+
+  .chat-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--sidebar-color);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+  }
+
+  .pdf-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--sidebar-color);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+  }
+
+  .chat-history {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .chat-message {
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 80%;
+    word-wrap: break-word;
+  }
+
+  .user-message {
+    background-color: var(--primary-button);
+    color: var(--text-color);
+    align-self: flex-end;
+    border-bottom-right-radius: 5px;
+  }
+
+  .ai-message {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    align-self: flex-start;
+    border-bottom-left-radius: 5px;
+  }
+
+  .chat-input-area {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--sidebar-color); /* Match column bg */
+  }
+
+  .chat-input {
+    flex-grow: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    resize: none; /* Prevent manual resizing */
+    margin-right: 10px;
+    min-height: 40px; /* Minimum height */
+    max-height: 150px; /* Maximum height before scroll */
+    overflow-y: auto; /* Add scroll if needed */
+  }
+
+  .send-button {
+    padding: 0 15px;
+    border-radius: 8px;
+    background-color: var(--primary-button);
+    color: var(--text-color);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    height: 40px; /* Match input height */
+    align-self: flex-end; /* Align button to bottom */
+  }
+
+  .send-button:hover {
+    background-color: var(--primary-button-hover);
+  }
+
+  .pdf-controls {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+  }
+
+  .pdf-viewer {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--background-color); /* Slightly different bg for contrast */
+    padding: 10px;
+  }
+
+  .pdf-viewer iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+   .pdf-viewer p {
+       color: var(--secondary-text);
+   }
+
+  .upload-button {
+    background-color: var(--primary-button);
+    color: var(--text-color);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .upload-button:hover {
+    background-color: var(--primary-button-hover);
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 992px) { /* Adjust breakpoint as needed */
+    .agent-container {
+      flex-direction: column;
+      height: auto; /* Allow content to determine height */
+    }
+    .chat-column, .pdf-column {
+      height: 50vh; /* Give each column a fixed height on smaller screens */
+      min-height: 300px; /* Ensure minimum usable height */
+    }
+  }
+   @media (max-width: 768px) {
+       .central-content {
+           padding: 10px; /* Reduce padding on mobile */
+       }
+       .agent-container {
+           gap: 10px;
+       }
+       .chat-column, .pdf-column {
+           height: calc(50vh - 60px); /* Adjust height considering potential header/footer */
+       }
+       .chat-input-area {
+           padding: 10px;
+       }
+       .pdf-controls {
+           padding: 10px;
+       }
+   }
