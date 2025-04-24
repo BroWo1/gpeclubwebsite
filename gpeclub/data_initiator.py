@@ -103,6 +103,15 @@ models.Project.objects.create(
     project_url='agent/',
     project_version='1.0.0',
     project_description='An enhanced version of Agent GPE',
+    project_cover=project_cover_path('8.png'),
+)
+
+models.Project.objects.create(
+    project_id=5,
+    project_name='US History Project',
+    project_url='projects/USH/',
+    project_version='1.0.0',
+    project_description='Selling the American Century: The Gulf War',
     project_cover=project_cover_path('2.png'),
 )
 

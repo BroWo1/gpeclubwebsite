@@ -28,8 +28,8 @@ urlpatterns = [
     path('projects/phys2/', views.phys2, name='phys2'),
     path('projects/phys2/unit2/', views.phys2u2, name='phys2u2'),
     path('vocab/list/', views.vocabList, name='vocabList'),
-    path('vocab/ai/<str:set_name>/', views.ai, name='vocabAi'),
-    path('vocab/mcq/<str:set_name>/', views.mcq, name='vocabMcq'),
+    path('vocab/ai/<str:set_name>/', views.ai, name='ai'),
+    path('vocab/mcq/<str:set_name>/', views.mcq, name='mcq'),
     path('privacy/', views.privacy, name='privacy'),
     path('magazine/pdf/<str:magazine_id>/', views.magazine_pdf, name='magazine_pdf'),
     path('magazine/read/<str:magazine_id>/', views.magazine_reader, name='magazine_reader'),
@@ -40,4 +40,7 @@ urlpatterns = [
     path('agent/upload_pdf/', views.upload_pdf_to_openai, name='agent_upload_pdf'),
     path('agent/chat/', views.agent_chat, name='agent_chat'),
     path('set_language/', set_language, name='set_language'),
+    path('projects/USH/', views.USH, name='USH'),
+
 ]
+

@@ -1,0 +1,363 @@
+    <!doctype html>
+<html lang="en">
+  <head>
+      {% load static %}
+      {% load i18n %}
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="GPE Interactive - Game Development and AI Programming Club">
+    <title>{% trans "name" %}</title>
+    <link rel="shortcut icon" href="{% static 'imgs/logo.ico' %}"></link>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'index.css' %}"></link>
+    <style>
+
+
+
+    </style>
+      <script type="module">
+  import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+  window.webllm = webllm; // Make it globally accessible
+</script>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <img src="{% static 'imgs/gpe.png' %}" style="width: 40px; height: 40px" alt="GPE Logo">
+        <span style="font-size: 24px; font-weight: 600">{% trans "name" %}</span>
+      </div>
+
+      <div class="sidebar-nav">
+        <a href="{% url 'index' %}" class="active">{% trans "Home" %}</a>
+        <a href="{% url 'search' %}">{% trans "Projects" %}</a>
+        <a href="{% url 'vocabList' %}">{% trans "Vocab" %}</a>
+        <a href="{% url 'school' %}">Magazine</a>      <a href="{% url 'about' %}">{% trans "About" %}</a>
+        <div style="margin-top: auto;">
+          <form action="{% url 'set_language' %}" method="post">
+            {% csrf_token %}
+            <select name="language" onchange="this.form.submit()" class="language-select">
+              {% get_current_language as CURRENT_LANGUAGE %}
+              {% get_available_languages as AVAILABLE_LANGUAGES %}
+              {% for lang_code, lang_name in AVAILABLE_LANGUAGES %}
+                <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
+                  {{ lang_name }}
+                </option>
+              {% endfor %}
+            </select>
+          </form>
+        </div>
+      </div>
+    </div>
+    <button id="sidebarToggle" class="sidebar-toggle">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3" y1="12" x2="21" y2="12"></line>
+    <line x1="3" y1="6" x2="21" y2="6"></line>
+    <line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</button>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="header-actions">
+
+        <form role="search" action="projects/search/" method="get" style="width: 250px; ">
+          <input type="search" class="search-input" style="height: 36px; font-size: 14px; color: var(--text-color)" placeholder="{% trans "Search..." %}" aria-label="Search" name="query" value="{{ query }}">
+        </form>
+          <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="moon-icon">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sun-icon">
+    <circle cx="12" cy="12" r="5"></circle>
+    <line x1="12" y1="1" x2="12" y2="3"></line>
+    <line x1="12" y1="21" x2="12" y2="23"></line>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+    <line x1="1" y1="12" x2="3" y2="12"></line>
+    <line x1="21" y1="12" x2="23" y2="12"></line>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+  </svg>
+</button>
+      </div>
+
+
+
+
+      <div class="central-content">
+        <a name="0"></a>
+        <h1 style="font-size: 40px">{% trans "index title" %}</h1>
+
+
+        <a name="1"></a>
+        <div class="search-container" >
+                        <p style="text-align: center; padding-bottom: 15px; font-size: 16px">✨NEW: Updated search and navigation inside the website</p>
+
+          <form id="textForm">
+
+            <input type="search" class="search-bar" id="textInput" placeholder="e.g. Show me Spartans Magazine" name="q">
+            <button type="submit" class="button2">Search</button>
+          </form>
+
+          <div id="response-0" class="response-box" style="display: none; margin-top: 20px; padding: 15px; background-color: var(--search-bg); border-radius: 8px; text-align: left; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); border: 1px solid var(--input-border);">
+            <p id="loadingPlaceholder" class="placeholder-glow" style="display: none; ">
+            </p>
+            <p id="actualResponse" style="display: none; font-weight: 400"></p>
+          </div>
+        </div>
+
+        <p class="descript">
+          {% trans "Official website of GPE Interactive" %} <br> {{ current_date }}
+        </p>
+
+        <div class="action-buttons">
+          <button class="action-button" onclick="openModal('aboutUsModal')">{% trans "About Us" %}</button>
+          <button class="action-button" onclick="openModal('gpeHubModal')">GPEHub</button>
+            <button class="action-button" onclick="openModal('extensionModal')">Extension GPE</button>
+        </div>
+
+
+
+        <div class="carousel">
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <img src="{% static 'imgs/mygame.png' %}" alt="Trigonomis">
+              <div class="carousel-caption">
+                <h5>Trigonomis</h5>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <img src="{% static 'imgs/aivocab2.png' %}" alt="AI Vocab">
+              <div class="carousel-caption">
+                <h5>AI Vocab</h5>
+              </div>
+            </div>
+          </div>
+          <button class="carousel-control-prev" onclick="changeSlide(-1)">❮</button>
+          <button class="carousel-control-next" onclick="changeSlide(1)">❯</button>
+        </div>
+          <div class="iframe-container">
+          <iframe src="https://store.steampowered.com/widget/3327910/?t=Trigonomis%0AMade%20by%20Andy%20Wang%20and%20the%20whole%20GPE%20Club" height="250"></iframe>
+        </div>
+      </div>
+
+
+      <div class="footer">
+        <p>&copy; 2024 GPE Interactive</p>
+        <div style="margin-top: 10px;">
+          <a href="{% url 'index' %}" style="color: var(--secondary-text); margin: 0 10px;">Home</a>
+          <a href="{% url 'school' %}" style="color: var(--secondary-text); margin: 0 10px;">School</a>
+          <a href="#" style="color: var(--secondary-text); margin: 0 10px;">FAQs</a>
+          <a href="{% url 'about' %}" style="color: var(--secondary-text); margin: 0 10px;">About</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Us Modal -->
+    <div id="aboutUsModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>{% trans "About Us" %}</h2>
+          <button class="modal-close" onclick="closeModal('aboutUsModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <h4>{% trans "name" %}</h4>
+          <p style="margin: 15px 0;">
+            GPE Club is a club formed by students at the Tsinghua International School that focuses on software programming and game development, established since 2024.
+            <br><br>
+            Members: Will, Andy, Andrew, Jeffrey
+            <br><br>
+            Website made by Will and Andy
+          </p>
+
+          <div class="img-container">
+            <img src="{% static 'imgs/will.jpg' %}" alt="Will Li" class="profile-img">
+          </div>
+          <p style="text-align: center;">
+            Will Li<br>
+            Email: Will.Li@gpeclub.com
+          </p>
+
+          <div class="img-container">
+            <img src="{% static 'imgs/gandy.jpg' %}" alt="Andy Wang" class="profile-img">
+          </div>
+          <p style="text-align: center;">
+            Andy Wang<br>
+            Email: Alivehuman@outlook.com
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GPEHub Modal -->
+    <div id="gpeHubModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>GPEHub</h2>
+          <button class="modal-close" onclick="closeModal('gpeHubModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <h3>Download GPEHub</h3>
+          <p style="margin: 15px 0; font-size: 16px;">
+            GPEHub is a desktop application created by Will and the GPE Club, a toolbox that contains the projects of
+            the GPEClub Website and more AI features.
+            <br><br>
+            Download GPEHub at the Github repository:
+            <a href="https://github.com/BroWo1/GPE-Hub/releases/latest" style="color: var(--text-color);">Release</a>
+            <br><br>
+            Or...<br>
+            MacOS Version:
+            <a href="https://github.com/BroWo1/GPE-Hub/releases/download/v1.4.2/GPEHub-1.4.2-MacOS-arm64.dmg" style="color: var(--text-color);">Download</a>
+            <br>
+            Windows Version:
+            <a href="https://github.com/BroWo1/GPE-Hub/releases/download/v1.4.2/GPEHub-1.4.2-Windows.exe" style="color: var(--text-color);">Download</a>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div id="extensionModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>✨NEW: Extension GPE</h2>
+          <button class="modal-close" onclick="closeModal('extensionModal')">&times;</button>
+        </div>
+<div class="modal-body" style="display: flex; align-items: center; gap: 25px;">
+  <div class="img-container" style="flex-shrink: 0;">
+    <img src="{% static 'imgs/extension.png' %}" alt="Logo" class="profile-img">
+  </div>
+
+  <div style="flex-grow: 1;">
+    <h4 style="font-size: 20px; margin-top: 0;">Extension GPE is now published on the Chrome Web Store!</h4>
+    <p style="margin: 30px 0;">
+      <a style="color: var(--text-color);" href="https://chromewebstore.google.com/detail/mdkidaggpdhcaifbiakpdepclddngfcp?utm_source=item-share-cb">
+        Download now
+      </a>
+      for AI translation and definition features! Only on Extension GPE.
+    </p>
+  </div>
+</div>
+      </div>
+    </div>
+
+    <script>
+let slideIndex = 0;
+const slides = document.querySelectorAll('.carousel-item');
+let slideInterval; // To store the interval ID
+
+// Add this function to automatically advance slides
+function startAutoSlide() {
+  // Set interval to change slides every 5 seconds (5000ms)
+  slideInterval = setInterval(() => {
+    changeSlide(1);
+  }, 5000);
+}
+
+// Modify your changeSlide function to reset the timer when manually changed
+function changeSlide(n) {
+  // Reset the interval timer when manually changing slides
+  clearInterval(slideInterval);
+
+  // Remove active class from current slide
+  slides[slideIndex].classList.remove('active');
+
+  // Calculate new slide index
+  slideIndex += n;
+  if (slideIndex >= slides.length) {
+    slideIndex = 0;
+  }
+  if (slideIndex < 0) {
+    slideIndex = slides.length - 1;
+  }
+
+  // Add active class to new slide
+  slides[slideIndex].classList.add('active');
+
+  // Restart the automatic sliding
+  startAutoSlide();
+}
+
+// Update your initCarousel function to start the auto-sliding
+function initCarousel() {
+  // Set the first slide as active
+  slides[0].classList.add('active');
+
+  // Make sure other slides are properly set up for transitions
+  for (let i = 1; i < slides.length; i++) {
+    slides[i].classList.remove('active');
+  }
+
+  // Start automatic sliding
+  startAutoSlide();
+}
+document.addEventListener('DOMContentLoaded', initCarousel);
+
+      function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  modal.style.display = 'block';
+  // Add slight delay before adding show class for animation sequence
+  setTimeout(() => {
+    modal.classList.add('show');
+  }, 10);
+}
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  modal.classList.remove('show');
+    if (modalId === 'extensionModal') {
+    localStorage.setItem('extensionModalClosed', 'true');
+  }
+  // Wait for animation to complete before hiding
+  setTimeout(() => {
+    modal.style.display = 'none';
+  }, 300);
+}
+  if (!localStorage.getItem('extensionModalClosed')) {
+    openModal('extensionModal');
+  }
+
+      // Close modal when clicking outside of it
+      window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+          event.target.style.display = 'none';
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+          const sidebarToggle = document.getElementById('sidebarToggle');
+          const sidebar = document.querySelector('.sidebar');
+          const mainContent = document.querySelector('.main-content');
+          const centralContent = document.querySelector('.central-content');
+
+          // Check if sidebar state is stored in localStorage
+          const sidebarState = localStorage.getItem('sidebarCollapsed');
+          console.log('sidebarState:', sidebarState); // Debugging line
+          /*
+          if (sidebarState === 'true') {
+      sidebar.classList.add('collapsed');
+      mainContent.classList.add('expanded');
+      centralContent.classList.add('centered');
+      sidebarToggle.classList.add('active');
+    }else{
+        mainContent.classList.add('blur');
+    }
+           */
+
+          if (window.innerWidth <= 768) {
+              sidebar.classList.add('collapsed');
+              mainContent.classList.add('expanded');
+              centralContent.classList.add('centered');
+              sidebarToggle.classList.add('active');
+          }
+      });
+
+
+    </script>
+    <script type="module" src="{% static 'assets/js/theme.js' %}"></script>
+
+    <!-- Include the original search script to maintain AI search functionality -->
+    <script type="module" src="{% static 'assets/js/search.js' %}"></script>
+  </body>
+</html>

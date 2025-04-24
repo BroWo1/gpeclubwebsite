@@ -199,11 +199,11 @@
           {% endfor %}
         </div>
 
-        <a href="#" class="back-to-top">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 15l-6-6-6 6"/>
-          </svg>
-        </a>
+<a href="#" class="back-to-top" id="back-to-top">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 15l-6-6-6 6"/>
+  </svg>
+</a>
 
         <div class="footer">
           <p>&copy; 2024 GPE Interactive</p>
@@ -219,7 +219,7 @@
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-        const themeToggle = document.getElementById('themeToggle');
+          const themeToggle = document.getElementById('themeToggle');
         const logoImage = document.querySelector('.sidebar-header img');
 
         // Function to update the logo based on theme
@@ -257,8 +257,7 @@
           localStorage.setItem('theme', newTheme);
           updateLogo(newTheme);
         });
-      });
-      document.addEventListener('DOMContentLoaded', function() {
+
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.querySelector('.sidebar');
     const mainContent = document.querySelector('.main-content');
@@ -303,6 +302,23 @@
 
       }
     });
+  const backToTopButton = document.getElementById('back-to-top');
+  window.addEventListener('scroll', function() {
+    if (window.pageYOffset > 300) { // Show button after scrolling 300px
+      backToTopButton.style.display = 'flex';
+    } else {
+      backToTopButton.style.display = 'none';
+    }
+  });
+  if (backToTopButton) {
+    backToTopButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
 
     // Adjust for window resize
     window.addEventListener('resize', function() {
@@ -311,6 +327,7 @@
         mainContent.classList.add('expanded');
       }
     });
+    // Back to top button functionality
   });
     </script>
     <script type="module" src="{% static 'assets/js/search.js' %}"></script>

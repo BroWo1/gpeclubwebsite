@@ -93,6 +93,9 @@ def old(request):
     current_date = datetime.now()
     return render(request, 'index_new.html', {'current_date': current_date} )
 
+def USH(request):
+    return render(request, 'projects/USH/index.html')
+
 def privacy(request):
     return render(request, 'privacy.html')
 def agent(request):
