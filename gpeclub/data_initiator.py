@@ -9,8 +9,11 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 def clearDatas():
     a = models.Project.objects.all()
-    for _ in range(len(a)):
-        a[0].delete()
+    for model in list(a):
+        model.delete()
+    #for _ in range(len(a)):
+        #a[0].delete()
+
 
 def project_cover_path(name):
     return 'imgs/project_covers/{}'.format(name)
